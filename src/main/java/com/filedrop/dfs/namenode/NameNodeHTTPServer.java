@@ -27,7 +27,7 @@ public class NameNodeHTTPServer {
 		ServletHolder fileUploadServletHolder = new ServletHolder(new NNUploadServlet());
 		fileUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement("data/tmp"));
 
-		context.addServlet(fileUploadServletHolder, "/upload");
+		context.addServlet(NNUploadServlet.class, "/upload");
 
 		context.addServlet(NNQueryServlet.class, "/query");
 

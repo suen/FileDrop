@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +23,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.eclipse.jetty.server.Authentication.SendSuccess;
 import org.json.JSONObject;
 
 @SuppressWarnings("serial")
@@ -77,14 +81,26 @@ public class NNUploadServlet extends HttpServlet
 		}
 	}
 
+	private void printallparam(HttpServletRequest request){
+		Map<String, String[]> paramMap = request.getParameterMap();
+		
+		for(String key: paramMap.keySet()){
+			for(String value: paramMap.get(key))
+				System.out.println(key + ": " + value);
+		}
+
+	}
+	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+		printallparam(request);
+		
+		response.setContentType("text/plain");
+		JSONObject reply = new JSONObject();
+		
 		// Check that we have a file upload request
 		isMultipart = ServletFileUpload.isMultipartContent(request);
-		response.setContentType("text/plain");
-		
-		JSONObject reply = new JSONObject();
 		
 		if( !isMultipart ){
 			reply.put("result", "failed");
@@ -97,46 +113,62 @@ public class NNUploadServlet extends HttpServlet
 		factory.setRepository(new File("./tmp"));
 		// Create a new file upload handler
 		ServletFileUpload upload = new ServletFileUpload(factory);
+
+		
+		String fileName = "";
+		String cwd = "";
 		try{ 
 			// Parse the request to get file items.
 			List fileItems = upload.parseRequest(request);
 			// Process the uploaded file items
 			Iterator i = fileItems.iterator();
 			while (i.hasNext ()) {
-
 				FileItem fi = (FileItem) i.next();
 				if ( !fi.isFormField () )	{
-					fi.getInputStream();
-					// Get the uploaded file parameters
-					String fieldName = fi.getFieldName();
-					String fileName = fi.getName();
-					String contentType = fi.getContentType();
-					boolean isInMemory = fi.isInMemory();
-					long sizeInBytes = fi.getSize();
+					fileName = fi.getName();
 					// Write the file
 					if( fileName.lastIndexOf("\\") >= 0 ){
 						file = new File( "./tmp/" + 
 								fileName.substring( fileName.lastIndexOf("\\"))) ;
 						fi.write( file ) ;
+
 					}else {
 						file = new File( "./tmp/" + 
 								fileName.substring(fileName.lastIndexOf("\\")+1)) ;
 						fi.write( file ) ;
 					}
-					
-					Map<String, String> result = new HashMap<String, String>(); 
-					result.put(fileName, "OK");
-					reply.put("result", result);
-					response.getWriter().print(reply.toString());
-					System.out.println(reply.toString());
-					return;
-				}
+				} else {
+					String fieldname = fi.getFieldName();
+
+					if (fieldname.equals("cwd")){
+						cwd = fi.getString();
+					}
+	
+			}
 			}
 		} catch(Exception ex) {
 			reply.put("result", "failed");
 			ex.printStackTrace();
 			System.out.println(reply.toString());
 		}
+		
+
+		if (cwd.isEmpty()){
+			reply.put("result", "failed");
+			reply.put("error", "Current working directory missing");
+			response.getWriter().print(reply.toString());
+			System.out.println(reply.toString());
+			return;
+		} else {
+			//System.out.println("cwd: " + reqcloned.getParameter("cwd"));
+			
+			Map<String, String> result = new HashMap<String, String>(); 
+			result.put(cwd + "/" + fileName, "OK");
+			reply.put("result", result);
+			response.getWriter().print(reply.toString());
+			System.out.println(reply.toString());
+		}
+
 
 	}
 }
