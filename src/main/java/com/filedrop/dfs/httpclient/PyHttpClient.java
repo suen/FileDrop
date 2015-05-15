@@ -1,4 +1,4 @@
-package com.daubajee.dfs.httpclient;
+package com.filedrop.dfs.httpclient;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

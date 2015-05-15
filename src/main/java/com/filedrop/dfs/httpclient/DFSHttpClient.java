@@ -1,4 +1,4 @@
-package com.daubajee.dfs.httpclient;
+package com.filedrop.dfs.httpclient;
 
 import org.eclipse.jetty.client.HttpClient;
 

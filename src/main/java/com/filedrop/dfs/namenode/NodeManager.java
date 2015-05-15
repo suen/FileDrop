@@ -1,4 +1,4 @@
-package com.daubajee.dfs.namenode;
+package com.filedrop.dfs.namenode;
 
 import java.io.File;
 import java.io.FileInputStream;
