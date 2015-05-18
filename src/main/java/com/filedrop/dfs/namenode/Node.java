@@ -23,6 +23,7 @@ public class Node {
 	public final String size = "/query?size";
 	public final String delete = "/query?delete";
 	public final String upload = "/upload";
+	public final String download = "/query?download";
 
 
 	public String getIdentifier(){
@@ -30,13 +31,13 @@ public class Node {
 	}
 
 	public String getURL(){
-		return "http://" + ip + ":" + port;
+		return ("http://" + ip + ":" + port).trim();
 	}
 
 	public Node(String ip, String name, String port, long totalspace){
 		this.ip = ip;
 		this.name = name;
-		this.port = port;
+		this.port = port.trim();
 		this.totalspace = totalspace;
 		client = new HttpClient();
 	}
@@ -46,7 +47,7 @@ public class Node {
 	}
 
 	public void setPort(String port){
-		this.port = port;
+		this.port = port.trim();
 	}
 
 	public String getIp() {
@@ -157,6 +158,33 @@ public class Node {
 	public String uploadFile(String filepath){
 		PyHttpClient pyclient = new PyHttpClient();
 		return pyclient.upload(getURL()+upload, filepath);
+	}
+	
+	public void downloadFile(String url, String filename){
+		try {
+
+			client.start();
+			ContentResponse response = 
+					client.GET(getURL()+download+"="+url+"&filename="+filename);
+
+			try {
+				JSONObject replyJson = new JSONObject(response.getContentAsString());
+				JSONObject result = replyJson.getJSONObject("result");
+				System.out.println(result.toString());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}  catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				client.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
 

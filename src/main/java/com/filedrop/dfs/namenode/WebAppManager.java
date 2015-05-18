@@ -12,8 +12,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.filedrop.dfs.datanode.DataNodeServer;
-import com.filedrop.dfs.httpclient.PyHttpClient;
 import com.filedrop.dfs.registry.impl.SQLRegistry;
 import com.filedrop.dfs.registry.model.DFile;
 import com.filedrop.dfs.registry.model.Registry;
@@ -25,11 +23,8 @@ public class WebAppManager {
 	
 	public WebAppManager(){
 
-		try {
-			nodemanager = new NodeManager();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		nodemanager = NodeManager.getInstance();
+		nodemanager.init();
 	}
 	
 	public String getDirectoryListing(String path){

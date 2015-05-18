@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -17,15 +16,24 @@ public class NodeManager implements Runnable {
 
 	private Thread nodeThread ;
 
-	public NodeManager() throws IOException {
+	private NodeManager(){
 
+	}
+	
+	private static NodeManager self = null;
+	public static NodeManager getInstance(){
+		if (self==null)
+			self = new NodeManager();
+		return self;
+	}
+
+	
+	public void init(){
 		nodeThread = new Thread(this);
 		nodeThread.setDaemon(true);
 		nodeThread.start();
 
-
 	}
-
 
 	private void readNodeConfigs() throws IOException{
 		nodes = new ArrayList<Node>();
@@ -69,7 +77,7 @@ public class NodeManager implements Runnable {
 		String totalspace = prop.get("space").toString();
 		Node node = new Node(ip, name, port, Long.valueOf(totalspace));
 		nodes.add(node);
-		System.out.println("INFO: New DataNode '" +node.getIdentifier() + "'" );
+		//System.out.println("INFO: New DataNode '" +node.getIdentifier() + "'" );
 	}
 
 	public Node getDatanodeByName(String name){
@@ -152,7 +160,7 @@ public class NodeManager implements Runnable {
 			readNodeConfigs();
 			pingDataNodes();
 			Thread.sleep(5000);
-			run();
+		//	run();
 
 		} catch (Exception e) {
 		}
@@ -164,9 +172,9 @@ public class NodeManager implements Runnable {
 		manager.readNodeConfigs();
 		manager.pingDataNodes();
 		manager.printstat();
-
-		Node node = manager.getaDataNodeWithSpace(8331022771L);
-		System.out.println("Node with free space " + node.getIdentifier());
+//
+//		Node node = manager.getaDataNodeWithSpace(8331022771L);
+//		System.out.println("Node with free space " + node.getIdentifier());
 	}
 
 }

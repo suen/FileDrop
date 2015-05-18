@@ -2,14 +2,21 @@ package com.filedrop.dfs.datanode;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
 import org.json.JSONObject;
 
 @SuppressWarnings("serial")
@@ -86,6 +93,50 @@ public class DNQueryServlet extends HttpServlet {
 			System.out.println(reply.toString());
 			response.getWriter().print(reply.toString());
 			return;
+		}
+		
+		if (paramMap.keySet().contains("download")){
+			
+			String url = paramMap.get("download")[0];
+			String filename = paramMap.get("filename")[0];
+			JSONObject reply = new JSONObject();
+
+			try {
+				HttpClient client = new HttpClient();
+				client.start();
+				
+				ContentResponse resp = client.GET(url);
+				
+				Path path = Paths.get("./static/"+filename);
+				
+				try {
+					Files.write(path, resp.getContent()); // Requires System.IO
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				client.stop();
+				
+				reply.put("result", filename);
+				reply.put("query", "download");
+				System.out.println(reply.toString());
+				response.getWriter().print(reply.toString());
+				return;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			reply.put("result", "failed");
+			reply.put("query", "download");
+			System.out.println(reply.toString());
+			response.getWriter().print(reply.toString());
+			return;
+	
 		}
 		
 		for(String param: paramMap.keySet()){
