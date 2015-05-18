@@ -1,5 +1,8 @@
 package com.filedrop.dfs.datanode;
 
+import java.io.File;
+import java.net.InetSocketAddress;
+
 import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.jetty.server.Server;
@@ -15,10 +18,17 @@ public class DataNodeServer {
 
 	public static void main(String[] args) throws Exception {
 		int port = 8000;
-		if (args.length==1){
-			port = Integer.valueOf(args[0]);
+		String hostname = "localhost";
+		if (args.length==2){
+			hostname = args[0];
+			port = Integer.valueOf(args[1]);
+			System.out.println("Hostname=" + hostname + " Port=" + port);
 		}
 		
+		File file = new File("./static");
+		
+		if (!file.exists())
+			file.mkdir();
 		
 		final ServletContextHandler context =
 				new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -42,7 +52,12 @@ public class DataNodeServer {
 
 		System.out.println("Initializing datenode server on port  " +port + " .....");
 		
-		final Server server = new Server(port);
+		
+		
+//		final Server server = new Server(port);
+		InetSocketAddress sock = new InetSocketAddress("localhost", port);
+		final Server server = new Server(sock);
+		
 		server.setHandler(context);
 
 		System.out.println("Ready");
