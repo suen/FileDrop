@@ -14,7 +14,12 @@ public class DataNodeServer {
 	}
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("Initializing server...");
+		int port = 8000;
+		if (args.length==1){
+			port = Integer.valueOf(args[0]);
+		}
+		
+		
 		final ServletContextHandler context =
 				new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
@@ -35,9 +40,12 @@ public class DataNodeServer {
 
 		context.addServlet(DNQueryServlet.class, "/query");
 
+		System.out.println("Initializing datenode server on port  " +port + " .....");
 		
-		final Server server = new Server(8000);
+		final Server server = new Server(port);
 		server.setHandler(context);
+
+		System.out.println("Ready");
 
 		server.start();
 		server.join();
