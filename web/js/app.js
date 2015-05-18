@@ -35,7 +35,8 @@ app.service('fileUpload', ['$http', function ($http) {
 app.controller('mainController', ['$scope', 'fileUpload', '$http', function($scope, fileUpload, $http){
 
 	$scope.filelist = {};
-	$scope.cwd = "/" 
+	$scope.cwd = "/"; 
+	$scope.directory_name = "";
 
     $scope.uploadFile = function(){
         var file = $scope.myFile;
@@ -44,15 +45,89 @@ app.controller('mainController', ['$scope', 'fileUpload', '$http', function($sco
         fileUpload.uploadFileToUrl(file, uploadUrl);
     };
 
-	$scope.refresh = function() {
-		$http.get("/query?list=root").success(function(data){
-			$scope.filelist = data;
+	$scope.getfilelist = function(path) {
+		
+		path = path.replace("//", "/");
+
+		$http.get("/query?list="+path).success(function(data){
+			$scope.filelist = data.filelist;
+
+			if ($scope.pwd != "/")
+				$scope.filelist.unshift({'name': '..', 'type': 'link', 'size': '', 'path': ''});
+			$scope.cwd = data.path; 
 		});
 
 	}
 
+	$scope.refresh = function() {
+		$scope.getfilelist($scope.cwd);
+	}
+
+	$scope.fileitemclick = function(f) {
+		if (f.type == "dir"){
+			console.log("Getting: " + f.path)
+			$scope.getfilelist(f.path)
+			return;
+		}
+		if(f.name == ".."){
+			cwd = $scope.cwd;
+			if (cwd.substr(cwd.length - 1) == "/")
+				cwd = cwd.substr(0, cwd.length-1);
+
+			cwd = cwd.substr(0, cwd.lastIndexOf("/"));
+			if (cwd == "")
+				cwd = "/";
+			$scope.cwd = cwd;
+			$scope.refresh();
+		}
+
+		if (f.type=="file"){
+			console.log("HTTP get /query?getfileurl=" + f.id);
+			$http.get("/query?getfileurl="+f.id).success(function(data){
+				
+				if (data['result'] == ""){
+					console.log("No url returned");
+					return;
+				}
+				window.open(data['result']);
+			});
+		}
+	};
+
 	$scope.createDirectory = function() {
-		console.log($scope.directory_name);
+
+		if ($scope.directory_name.trim() == "") {
+			return;
+		}
+
+		console.log("Creating directory: " + $scope.directory_name);
+
+		new_dir_path = ($scope.cwd + "/"+$scope.directory_name).replace("//","/");
+
+		$http.get("/query?mkdir="+new_dir_path).success(function(data){
+			
+			$scope.directory_name = "";
+			$scope.refresh();
+		});
+	};
+
+	$scope.fileitemdelete = function(f) {
+
+		if(f.type == "link")
+			return;
+
+		if(f.type == "file") {
+			$http.get("/query?rm="+f.path+"&id="+f.id).success(function(data){
+				$scope.refresh();
+			});
+		};
+
+		if(f.type == "dir") {
+			$http.get("/query?rm="+f.path).success(function(data){
+				$scope.refresh();
+			});
+		};
+
 	};
 
 	$scope.refresh();

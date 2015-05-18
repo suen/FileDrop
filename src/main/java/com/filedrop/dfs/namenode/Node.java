@@ -1,5 +1,8 @@
 package com.filedrop.dfs.namenode;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class Node {
 
 	public final String listfile = "/query?list";
 	public final String size = "/query?size";
+	public final String delete = "/query?delete";
+	public final String upload = "/upload";
 
 
 	public String getIdentifier(){
@@ -82,7 +87,7 @@ public class Node {
 			return (size==0 ? 1 : size);
 
 		}  catch (Exception e) {
-			e.printStackTrace();
+
 		} finally {
 			try {
 				client.stop();
@@ -122,4 +127,74 @@ public class Node {
 		}
 		return null;
 	}
+	
+	public void deleteFile(String id){
+		try {
+
+			client.start();
+			ContentResponse response = client.GET(getURL()+delete+"="+id);
+
+			try {
+				JSONObject replyJson = new JSONObject(response.getContentAsString());
+				JSONObject result = replyJson.getJSONObject("result");
+				System.out.println(result.toString());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}  catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				client.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public String uploadFile(String filepath){
+		PyHttpClient pyclient = new PyHttpClient();
+		return pyclient.upload(getURL()+upload, filepath);
+	}
+}
+
+class PyHttpClient {
+
+	public String upload(String url, String filepath){
+	
+    try {
+		Process process = Runtime.getRuntime().exec(
+				"python clientpy.py " + url + " " + filepath);
+		InputStream stdout = process.getInputStream();
+		
+		BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+		
+		String output = "";
+		String line;
+		while((line = br.readLine())!=null){
+			if (output=="")
+				output = " ";
+			else
+				output += line + "\n";
+		}
+		
+		//System.out.println(output);
+		
+		return output.trim();
+		
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+      
+      return "";
+	}
+	
+	public static void main(String[] args) {
+		PyHttpClient py = new PyHttpClient();
+		
+		py.upload("http://localhost:8080/upload", "/d/ent/movies/A.Walk.Among.The.Tombstones.2014.FANSUB.VOSTFR.HDRiP.CROPPED.XviD.AC3-NIKOo-ZT.avi");
+	}
+	
 }

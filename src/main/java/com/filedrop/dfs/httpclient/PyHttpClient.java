@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 public class PyHttpClient {
 
-	public String upload(String url, String filepath){
+	public String uploads(String url, String filepath){
 	
     try {
 		Process process = Runtime.getRuntime().exec(
@@ -18,12 +18,15 @@ public class PyHttpClient {
 		String output = "";
 		String line;
 		while((line = br.readLine())!=null){
-			output += line + "\n";
+			if (output=="")
+				output = " ";
+			else
+				output += line + "\n";
 		}
 		
-		System.out.println(output);
+		//System.out.println(output);
 		
-		return output;
+		return output.trim();
 		
 	} catch (Exception e) {
 		e.printStackTrace();
@@ -35,7 +38,7 @@ public class PyHttpClient {
 	public static void main(String[] args) {
 		PyHttpClient py = new PyHttpClient();
 		
-		py.upload("http://localhost:8080/upload", "/d/ent/movies/A.Walk.Among.The.Tombstones.2014.FANSUB.VOSTFR.HDRiP.CROPPED.XviD.AC3-NIKOo-ZT.avi");
+		py.uploads("http://localhost:8080/upload", "/d/ent/movies/A.Walk.Among.The.Tombstones.2014.FANSUB.VOSTFR.HDRiP.CROPPED.XviD.AC3-NIKOo-ZT.avi");
 	}
 	
 }

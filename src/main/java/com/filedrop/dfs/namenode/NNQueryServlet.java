@@ -11,6 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class NNQueryServlet extends HttpServlet {
 
+	
+	private WebAppManager webManager;
+	public NNQueryServlet() {
+		webManager = new WebAppManager();
+	}
+	
 	@Override
 	protected void doGet( HttpServletRequest request,
 			HttpServletResponse response ) throws ServletException, IOException {
@@ -19,35 +25,50 @@ public class NNQueryServlet extends HttpServlet {
 		Map<String, String[]> paramMap = request.getParameterMap();
 		
 		if (paramMap.keySet().contains("list")){
-			
 			String args = paramMap.get("list")[0];
+			String resultStr = webManager.getDirectoryListing(args);
 			
-			if (args==null){
-				//TODO invalid request
-			}
-
-			String mockstr = "{\"path\": \"root\","
-					+ "\"filelist\": ["
-					+ "{\"size\": 0, \"name\": \"archive\", \"type\": \"dir\"}, "
-					+ "{\"size\": 543, \"name\": \"file01.txt\", \"type\": \"file\"}, "
-					+ "{\"size\": 91, \"name\": \"file02.txt\", \"type\": \"file\"}, "
-					+ "{\"size\": 412, \"name\": \"file03.txt\", \"type\": \"file\"}, "
-					+ "{\"size\": 275, \"name\": \"file04.txt\", \"type\": \"file\"}, "
-					+ "{\"size\": 130, \"name\": \"file10.txt\", \"type\": \"file\"}, "
-					+ "{\"size\": 1499, \"name\": \"file11.txt\", \"type\": \"file\"}"
-					+ "]}";
-
-			//JSONObject reply = new JSONObject(mockstr);
-
-			response.getWriter().print(mockstr);
+			response.getWriter().print(resultStr);
+			return;
+		}
+		if (paramMap.keySet().contains("mkdir")){
+			String args = paramMap.get("mkdir")[0];
+			String resultStr = webManager.mkdir(args);
+			
+			response.getWriter().print(resultStr);
 			return;
 		}
 		
+		if (paramMap.keySet().contains("getfileurl")){
+			String args = paramMap.get("getfileurl")[0];
+			String resultStr = webManager.getFileUrl(args);
+			
+			response.getWriter().print(resultStr);
+			return;
+		}
+		
+		if (paramMap.keySet().contains("rm")){
+
+			String filepath = paramMap.get("rm")[0];
+			
+			if (paramMap.keySet().contains("id")){
+				String fileid = paramMap.get("id")[0];
+				String resultStr = webManager.rmFile(filepath, fileid);
+				response.getWriter().print(resultStr);
+			}
+			
+			else {
+				String resultStr = webManager.rmDir(filepath);
+				response.getWriter().print(resultStr);
+			}
+			
+			return;
+		}
 		
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		doGet(request, response);
 	}
 }

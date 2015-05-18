@@ -56,7 +56,7 @@
 								"   {caption}" +
 								"</div>"
 							},
-							uploadUrl: "http://localhost:8080/upload", // server upload action
+							uploadUrl: "/upload", // server upload action
 							uploadAsync: true,
 							uploadExtraData: function() {
 								out = {};
@@ -80,7 +80,6 @@
 					<form class="form-inline">
 						<button class="btn btn-primary" ng-click="createDirectory()" >Create Directory</button>
 						<input type="text" class="form-control" ng-model="directory_name" placeholder="directory_name">
-						<p>{{ directory_name }}</p>
 					</form>
 				</div>
 			</div>
@@ -112,17 +111,17 @@
 							</tr>
 							-->
 
-							<tr ng-repeat="f in filelist.filelist">
-								<td></td>
+							<tr ng-repeat="f in filelist">
+								<td><a href="#" ng-click="fileitemdelete(f)">X</a></td>
 								<td>
-									<a href="{{ f.name}}">
-									<img src="{{ f.type == 'dir' ? 'img/folder.png' : 'img/file.png' }}" width="32" />
+									<a href="#" ng-click="fileitemclick(f)">
+									<img src="{{ f.type == 'dir' ? 'img/folder.png' : f.type=='file' ? 'img/file.png':'img/blank.jpg' }}" width="32" />
 									{{ f.name }}
 									</a>
 								</td>
-								<td>{{f.type}}</td>
-								<td>{{f.size}}</td>
-								<td>OK</td>
+								<td>{{f.type == 'link' ? '': f.type }}</td>
+								<td>{{f.type == 'link' ? '': f.size }}</td>
+								<td></td>
 							</tr>
 
 						</table>

@@ -6,10 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +19,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.eclipse.jetty.server.Authentication.SendSuccess;
 import org.json.JSONObject;
 
 @SuppressWarnings("serial")
@@ -35,6 +30,11 @@ public class NNUploadServlet extends HttpServlet
 
 	private File file ;
 
+	private WebAppManager webManager;
+	public NNUploadServlet() {
+		webManager = new WebAppManager();
+	}
+	
 	@Override
 	protected void doGet( HttpServletRequest request,
 			HttpServletResponse response ) throws ServletException, IOException {
@@ -151,7 +151,7 @@ public class NNUploadServlet extends HttpServlet
 			ex.printStackTrace();
 			System.out.println(reply.toString());
 		}
-		
+
 
 		if (cwd.isEmpty()){
 			reply.put("result", "failed");
@@ -161,12 +161,16 @@ public class NNUploadServlet extends HttpServlet
 			return;
 		} else {
 			//System.out.println("cwd: " + reqcloned.getParameter("cwd"));
-			
-			Map<String, String> result = new HashMap<String, String>(); 
-			result.put(cwd + "/" + fileName, "OK");
-			reply.put("result", result);
-			response.getWriter().print(reply.toString());
-			System.out.println(reply.toString());
+			try {
+				String result = webManager.uploadfile(cwd, fileName);
+				response.getWriter().print(result);
+			} catch (Exception e) {
+				reply.put("result", "failed");
+				reply.put("error", "failed");
+				response.getWriter().print(reply.toString());
+				System.out.println(reply.toString());
+				e.printStackTrace();
+			}
 		}
 
 

@@ -30,8 +30,9 @@ public class DNQueryServlet extends HttpServlet {
 			String[] files = file.list();
 
 			reply.put("result", files);
+			reply.put("query", "list");
 		
-			
+			System.out.println(reply.toString());
 			response.getWriter().print(reply.toString());
 			return;
 		}
@@ -50,6 +51,9 @@ public class DNQueryServlet extends HttpServlet {
 			//long size = directory.getTotalSpace();
 			JSONObject reply = new JSONObject();
 			reply.put("result", String.valueOf(length));
+			reply.put("query", "size");
+			
+			System.out.println(reply.toString());
 			response.getWriter().print(reply.toString());
 			return;
 		}
@@ -78,7 +82,8 @@ public class DNQueryServlet extends HttpServlet {
 				}
 			}
 			reply.put("result", result);
-			
+			reply.put("query", "delete");
+			System.out.println(reply.toString());
 			response.getWriter().print(reply.toString());
 			return;
 		}
