@@ -40,56 +40,24 @@
 			<div class="container">
 			<div class="row" style="margin: 10px 0px 10px 0px;">
 				<div class="col-xs-10"> 
-					<form class="form-inline">
-						<input id="filetoupload" name="file" type="file" data-show-preview="false" >
-						<script>
-						$("#filetoupload").fileinput({
-							browseLabel: "Select files to upload",
-							layoutTemplates: {
-								main1: "{preview}\n" +
-								"<div class=\'input-group {class}\'>\n" +
-								"   <div class=\'input-group-btn\'>\n" +
-								"       {browse}\n" +
-								"       {upload}\n" +
-								"       {remove}\n" +
-								"   </div>\n" +
-								"   {caption}" +
-								"</div>"
-							},
-							uploadUrl: "/upload", // server upload action
-							uploadAsync: true,
-							uploadExtraData: function() {
-								out = {};
-								key = "cwd";
-								value = scope.cwd;
-								out[key] = value;
-								return out;
-							}
-						});
-
-						$('#filetoupload').on('filebatchuploadcomplete', function(event) {
-							//console.log('File uploaded triggered');
-							scope.refresh();
-						});
-						$('#filetoupload').on('filebatchuploaderror', function(event) {
-							console.log('File uploaded failed ');
-							console.log(event);
-							alert("upload failed");
-						});
-						</script>
+					<form class="form-inline" method="POST" action="/upload" enctype="multipart/form-data">
+						<input id="input-23" name="file" type="file" />
+						<input type="hidden" name="cwd" value="root" />
+						<input type="submit" class="btn btn-primary"value="Upload" />
 					</form>
 				</div>
 			</div>
 			<div class="row" style="margin: 10px 0px 10px 0px;">
 				<div class="col-xs-5"> 
 					<form class="form-inline">
-						<button class="btn btn-primary" ng-click="createDirectory()" >Create Directory</button>
-						<input type="text" class="form-control" ng-model="directory_name" placeholder="directory_name">
+						<button class="btn btn-primary">Create Directory</button>
+						<input type="text" class="form-control" id="selectedfilename" placeholder="directory_name">
 					</form>
 				</div>
 			</div>
 				<div class="row">
-					<h3>{{cwd}}</h3>
+
+
 					<div class="col-xs-9">
 						<table class="table">
 							<tr>
@@ -116,17 +84,17 @@
 							</tr>
 							-->
 
-							<tr ng-repeat="f in filelist">
-								<td><a href="#" ng-click="fileitemdelete(f)">X</a></td>
+							<tr ng-repeat="f in filelist.filelist">
+								<td></td>
 								<td>
-									<a href="#" ng-click="fileitemclick(f)">
-									<img src="{{ f.type == 'dir' ? 'img/folder.png' : f.type=='file' ? 'img/file.png':'img/blank.jpg' }}" width="32" />
+									<a href="{{ f.name}}">
+									<img src="{{ f.type == 'dir' ? 'img/folder.png' : 'img/file.png' }}" width="32" />
 									{{ f.name }}
 									</a>
 								</td>
-								<td>{{f.type == 'link' ? '': f.type }}</td>
-								<td>{{f.type != 'file' ? '': toKbMb(f.size) }}</td>
-								<td></td>
+								<td>{{f.type}}</td>
+								<td>{{f.size}}</td>
+								<td>OK</td>
 							</tr>
 
 						</table>

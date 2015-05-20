@@ -17,22 +17,8 @@ app.directive('fileModel', ['$parse', function ($parse) {
     };
 }]);
 
-app.service('fileUpload', ['$http', function ($http) {
-    this.uploadFileToUrl = function(file, uploadUrl){
-        var fd = new FormData();
-        fd.append('file', file);
-        $http.post(uploadUrl, fd, {
-            transformRequest: angular.identity,
-            headers: {'Content-Type': undefined}
-        })
-        .success(function(){
-        })
-        .error(function(){
-        });
-    }
-}]);
 
-app.controller('mainController', ['$scope', 'fileUpload', '$http', function($scope, fileUpload, $http){
+app.controller('mainController', ['$scope', '$http', function($scope, $http){
 
 	$scope.filelist = {};
 	$scope.cwd = "/"; 
@@ -57,6 +43,26 @@ app.controller('mainController', ['$scope', 'fileUpload', '$http', function($sco
 			$scope.cwd = data.path; 
 		});
 
+	}
+
+	$scope.toKbMb = function(size){
+		nsize = Number.parseInt(size);
+
+		unit = "B";
+		units = ["KB", "MB", "GB"];
+		
+		for (i=0; i<3;i++) {
+			
+			if (nsize > 1000) {
+				unit = units[i];
+				nsize = nsize / 1000;
+				nsize = Math.round(nsize,2);
+			} else {
+				continue;
+			}
+		}
+
+		return nsize.toString() + " " + unit;
 	}
 
 	$scope.refresh = function() {
