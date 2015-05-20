@@ -62,12 +62,14 @@ public class ReplicationManager implements Runnable {
 			if (datanode == null){
 				System.out.println("No more datanode for file : " + 
 						file.getPath());
+				
 			}
 		}
 	}
 	
 	public List<Map<String, String>> getReport(){
 		validateRegistryEntry();
+		replicateFile(2);
 		List<DFile> list = registry.getTree();
 		
 		List<Map<String, String>> result = new ArrayList<Map<String,String>>();
@@ -78,13 +80,18 @@ public class ReplicationManager implements Runnable {
 			
 			map.put("path", file.getPath());
 			map.put("id", file.getId());
-			map.put("factor", String.valueOf(datanode.length));
-
-			String dns = "";
-			for(String dn: datanode){
-				dns += "[" + dn + "] ";
+			
+			if (datanode == null ){
+				map.put("factor", "0");
+				map.put("datanodes", "");
+			} else {
+				map.put("factor", String.valueOf(datanode.length));
+				String dns = "";
+				for(String dn: datanode){
+					dns += "[" + dn + "] ";
+				}
+				map.put("datanodes", dns);
 			}
-			map.put("datanodes", dns);
 			result.add(map);
 		}
 		
@@ -104,32 +111,39 @@ public class ReplicationManager implements Runnable {
 			}
 			
 			if (dns.length < factor){
-				Node repSourceNode = nodemanager.getDatanodeByName(dns[0]);
+				System.out.println("REPLICATION: Factor < 2 for : " + file.getPath());
+
+				List<Node> destNodes = nodemanager.getDataNodesWithSpace(Long.parseLong(file.getSize()));
+
+				Map<String, Node> sourceNodes = new HashMap<String, Node>();
+				String aSourceUrl = "";
+				for(String dn: dns){
+					Node node = nodemanager.getDatanodeByName(dn);
+					sourceNodes.put(node.getName(), node);
+					aSourceUrl = node.getURL();
+				}
+ 
 				for (int i = dns.length; i<factor; i++) {
-					
-					//nodemanager.getDataNodesWithSpace(0);
-					
-				}
-				System.out.println("");
-			}
-			
-			for(String dn: dns){
-				Node node = nodemanager.getDatanodeByName(dn);
-				try {
-					if (! node.exists(file.getId())) {
-						System.out.println("False Entry detected " + 
-								file.getParent() + "/" + file.getName());
-						registry.rmmappingDN(file.getId(), dn);
+					for(Node destNode: destNodes){
+						if (sourceNodes.containsKey(destNode.getName()))
+							continue;
+						
+						System.out.println("REPLICATION: Replicating on " + destNode.getName());
+						
+						destNode.downloadFile(aSourceUrl, file.getId());
+						
+						sourceNodes.put(destNode.getName(), destNode);
+						
+						registry.createMappingDN(file.getId(), destNode.getName());
+						
+						if(sourceNodes.size()==dns.length)
+							break;
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
+					if(sourceNodes.size()==dns.length)
+						break;
 				}
-			}
-			
-			dns = registry.getDatanodeForFileID(file.getId());
-			if (dns == null){
-				System.out.println("No more datanode for file : " + 
-						file.getPath());
+			} else if (dns.length > factor) {
+				System.out.println("REPLICATION: Factor > 2 for : " + file.getPath());
 			}
 		
 		}		

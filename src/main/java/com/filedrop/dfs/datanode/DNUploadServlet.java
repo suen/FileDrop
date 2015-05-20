@@ -128,7 +128,8 @@ public class DNUploadServlet extends HttpServlet
 					
 					Map<String, String> result = new HashMap<String, String>(); 
 					result.put(fileName, "OK");
-					reply.put("result", result);
+					reply.put("result", "success");
+					reply.put("query", "/query?download");
 					response.getWriter().print(reply.toString());
 					System.out.println(reply.toString());
 					return;
