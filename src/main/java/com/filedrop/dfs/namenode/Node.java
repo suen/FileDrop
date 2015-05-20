@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -130,21 +132,23 @@ public class Node {
 	}
 	
 	public void deleteFile(String id){
+		String delreq = getURL()+delete+"="+id;
 		try {
 
 			client.start();
-			ContentResponse response = client.GET(getURL()+delete+"="+id);
+			ContentResponse response = client.GET(delreq);
 
 			try {
 				JSONObject replyJson = new JSONObject(response.getContentAsString());
 				JSONObject result = replyJson.getJSONObject("result");
 				System.out.println(result.toString());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}  catch (Exception e) {
+			String classname = e.getStackTrace()[0].getClassName();
+			System.out.println("Delete request failed: " + delreq);
+			System.out.println(classname);
 			e.printStackTrace();
 		} finally {
 			try {
@@ -155,10 +159,23 @@ public class Node {
 		}
 	}
 	
+	public boolean exists(String filename) throws Exception{
+		client.start();
+		String request = getURL()+"/query?exists="+filename;
+		ContentResponse response = client.GET(request);
+		
+		client.stop();
+		System.out.println("Reply for '" + request + "': " + response.getContentAsString());
+		JSONObject replyJson = new JSONObject(response.getContentAsString());
+		return replyJson.getBoolean("result");
+	}
+
+	
 	public String uploadFile(String filepath){
 		PyHttpClient pyclient = new PyHttpClient();
 		return pyclient.upload(getURL()+upload, filepath);
 	}
+	
 	
 	public void downloadFile(String url, String filename){
 		try {
@@ -195,17 +212,16 @@ class PyHttpClient {
     try {
 		Process process = Runtime.getRuntime().exec(
 				"python clientpy.py " + url + " " + filepath);
-		InputStream stdout = process.getInputStream();
+		//InputStream stdout = process.getInputStream();
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+		InputStream stderr = process.getErrorStream();
+		
+		BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 		
 		String output = "";
 		String line;
 		while((line = br.readLine())!=null){
-			if (output=="")
-				output = " ";
-			else
-				output += line + "\n";
+			output += line + "\n";
 		}
 		
 		//System.out.println(output);

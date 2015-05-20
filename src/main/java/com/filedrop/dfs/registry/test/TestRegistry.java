@@ -15,7 +15,15 @@ public class TestRegistry {
 		System.out.println(id);
 		
 		registry.mkdir("/root");
-		registry.createMapping("/root/myfile.txt", id, "file");
+		
+		DFile entry = new DFile();
+		entry.setId(id);
+		entry.setType("file");
+		entry.setParent("/root");
+		entry.setName("myfile.txt");
+		entry.setSize("0");
+		
+		registry.insertFile(entry);
 		
 		List<DFile> files = registry.list("/root");
 		for(DFile file : files){
@@ -28,7 +36,7 @@ public class TestRegistry {
 	
 	public static void testDNmapping(){
 		String id = registry.createUniqueFileName();
-		registry.createMapping("/afile.big", id, "file");
+//		registry.insertFile("/afile.big", id, "file");
 
 		registry.createMappingDN(id, "datanode1");
 		
@@ -39,13 +47,13 @@ public class TestRegistry {
 		registry.mkdir("/textfiles");
 
 		String id = registry.createUniqueFileName();
-		registry.createMapping("/textfiles/myfile.txt", id, "file");
+//		registry.insertFile("/textfiles/myfile.txt", id, "file");
 		
 		id = registry.createUniqueFileName();
-		registry.createMapping("/textfiles/fileText.txt", id, "file");
+//		registry.insertFile("/textfiles/fileText.txt", id, "file");
 
 		id = registry.createUniqueFileName();
-		registry.createMapping("/textfiles/texts.txt", id, "file");
+//		registry.insertFile("/textfiles/texts.txt", id, "file");
 		
 	}
 	

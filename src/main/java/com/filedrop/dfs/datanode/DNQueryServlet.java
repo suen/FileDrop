@@ -44,6 +44,21 @@ public class DNQueryServlet extends HttpServlet {
 			return;
 		}
 		
+		if (paramMap.keySet().contains("exists")){
+			
+			String filename = paramMap.get("exists")[0];
+			JSONObject reply = new JSONObject();
+			
+			File file = new File("./static/"+filename);
+			
+			reply.put("result", file.exists());
+			reply.put("query", "exists="+filename);
+		
+			System.out.println(reply.toString());
+			response.getWriter().print(reply.toString());
+			return;
+		}
+		
 		if (paramMap.keySet().contains("size")){
 			
 

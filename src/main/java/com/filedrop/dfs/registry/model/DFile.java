@@ -6,19 +6,10 @@ public class DFile {
 	private String type;
 	private String parent;
 	private String id;
+	private String size;
 	
-	public DFile(String name, String type) {
-		super();
-		this.name = name;
-		this.type = type;
-		this.setParent("");
-	}
-	
-	public DFile(String name, String type,String parent) {
-		super();
-		this.name = name;
-		this.type = type;
-		this.parent = parent;
+	public DFile(){
+		
 	}
 	
 	public String getName() {
@@ -49,7 +40,20 @@ public class DFile {
 	public void setId(String id) {
 		this.id = id;
 	}
+	
 
+	public String getSize() {
+		return size;
+	}
+
+	public void setSize(String size) {
+		this.size = size;
+	}
+
+	public String getPath(){
+		return (parent + "/" + name).replace("//", "/");
+	}
+	
 	public String toString(){
 		return "[File.name="+getName()+", File.parent="+getParent()+", File.type="+getType()+"]\n";
 	}

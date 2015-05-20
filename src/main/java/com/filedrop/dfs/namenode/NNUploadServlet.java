@@ -94,7 +94,7 @@ public class NNUploadServlet extends HttpServlet
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		printallparam(request);
+		//printallparam(request);
 		
 		response.setContentType("text/plain");
 		JSONObject reply = new JSONObject();
@@ -108,9 +108,14 @@ public class NNUploadServlet extends HttpServlet
 			System.out.println(reply.toString());
 			return;
 		}
-
+		
+		File tmpDir = new File("./tmp");
+		if(!tmpDir.exists()){
+			tmpDir.mkdir();
+		}
+		
 		DiskFileItemFactory factory = new DiskFileItemFactory();
-		factory.setRepository(new File("./tmp"));
+		factory.setRepository(tmpDir);
 		// Create a new file upload handler
 		ServletFileUpload upload = new ServletFileUpload(factory);
 

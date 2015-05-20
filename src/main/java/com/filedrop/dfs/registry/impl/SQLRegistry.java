@@ -25,10 +25,21 @@ public class SQLRegistry implements Registry {
 
 		level = Utils.removeSlash(level);
 		
-		String query = "select name, type, parent, id "
+		String query = "select name, type, parent, size, id "
 				+ "from registry "
 				+ "where parent ='"+ level + "'";
 		// System.out.println(query);
+		List<Map<String, String>> result = ds.query(query);
+		return Utils.getFileList(result);
+	}
+	
+	@Override
+	public List<DFile> getTree() {
+
+		String query = "select name, type, parent, size, id "
+				+ "from registry "
+				+ "where lower(type) = 'file' ";
+
 		List<Map<String, String>> result = ds.query(query);
 		return Utils.getFileList(result);
 	}
@@ -51,13 +62,14 @@ public class SQLRegistry implements Registry {
 	}
 
 	@Override
-	public boolean createMapping(String path, String id, String type) {
-		// TODO Auto-generated method stub
-		DFile file = Utils.parseFilePath(path, type);
-		return ds
-				.insert("insert  into registry (name,type,parent,id) values ('"
-						+ file.getName() + "','" + type + "','"
-						+ file.getParent() + "','" + id + "')");
+	public boolean insertFile(DFile file) {
+		return ds.insert("insert into registry "
+				+ "(name,type,parent, size,id) "
+				+ "values ("
+						+ "'" +file.getName() + "','" + file.getType() + "',"
+						+ "'" +file.getParent() + "','" + file.getSize()+ "',"
+						+ "'" +file.getId()+ "'"
+						+ ")");
 	}
 
 	@Override
@@ -81,10 +93,10 @@ public class SQLRegistry implements Registry {
 			return false;
 		}
 		
-		DFile dir = Utils.parseFilePath(path, "dir");
+		String[] filepath = Utils.parseFilePath(path);
 		ds.insert("delete from registry where parent = '" + path
 				+ "'");
-		ds.insert("delete from registry where name like '" + dir.getName()
+		ds.insert("delete from registry where name like '" + filepath[0]
 				+ "'");
 		return true;
 	}
@@ -92,19 +104,20 @@ public class SQLRegistry implements Registry {
 	@Override
 	public boolean rmfile(String path) {
 		// TODO Auto-generated method stub
-		DFile file = Utils.parseFilePath(path, "FILE");
+		String[] filepath = Utils.parseFilePath(path);
 		return ds.insert("delete from registry where parent = '"
-				+ file.getParent() + "' and name = '" + file.getName() + "'");
+				+ filepath[1] + "' and name = '" + filepath[0] + "'");
 	}
 
 	@Override
 	public boolean mvfile(String oldPath, String newPath) {
 		// TODO Auto-generated method stub
-		DFile oldfile = Utils.parseFilePath(oldPath, "FILE");
-		DFile newfile = Utils.parseFilePath(newPath, "FILE");
-		return ds.insert("update registry set parent='" + newfile.getParent()
-				+ "' , name='" + newfile.getName() + "' where parent='"
-				+ oldfile.getParent() + "' and name='" + oldfile.getName()
+		String[] ofilepath = Utils.parseFilePath(oldPath);
+		String[] nfilepath = Utils.parseFilePath(newPath);
+		return ds.insert("update registry "
+				+ "set parent='" + nfilepath[1] + "',"
+						+ "name='" + nfilepath[0] + "' where parent='"
+				+ ofilepath[1] + "' and name='" + ofilepath[0]
 				+ "' ");
 	}
 
@@ -118,7 +131,16 @@ public class SQLRegistry implements Registry {
 
 	@Override
 	public boolean mkdir(String path) {
-		return createMapping(path, "", "dir");
+		
+		String[] dirpath = Utils.parseFilePath(path);
+		DFile dir = new DFile();
+		dir.setId("");
+		dir.setName(dirpath[0]);
+		dir.setParent(dirpath[1]);
+		dir.setType("dir");
+		dir.setSize("");
+		
+		return insertFile(dir);
 	}
 
 	@Override
@@ -140,7 +162,10 @@ public class SQLRegistry implements Registry {
 		}
 		
 		return dnames;
-
+	}
+	
+	public static void createdatabaseSchema(){
+		String create = "create table registry(name text, type text, parent text, id text, size text);";
 	}
 
 }

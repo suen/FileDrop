@@ -8,7 +8,7 @@ public interface Registry {
 	
 	String createUniqueFileName();
 	
-	boolean createMapping(String path,String id,String type);
+	boolean insertFile(DFile file);
 	
 	boolean createMappingDN(String id,String datanode);
 	
@@ -23,6 +23,8 @@ public interface Registry {
 	boolean rmmappingDN(String id,String datanode);
 	
 	String[] getDatanodeForFileID(String id);
+
+	List<DFile> getTree();
 	
 	
 }

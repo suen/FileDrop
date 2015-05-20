@@ -6,4 +6,4 @@ fn = sys.argv[2]
 
 files = {'file': open(fn, 'rb')}
 r = requests.post(url, files=files)
-print r.text
+sys.stderr.write(r.text)

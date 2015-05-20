@@ -15,16 +15,20 @@ import org.json.JSONObject;
 import com.filedrop.dfs.registry.impl.SQLRegistry;
 import com.filedrop.dfs.registry.model.DFile;
 import com.filedrop.dfs.registry.model.Registry;
+import com.filedrop.dfs.replication.ReplicationManager;
 
 public class WebAppManager {
 	
 	private Registry registry = new SQLRegistry();
 	private NodeManager nodemanager;
+	private ReplicationManager repManager;
 	
 	public WebAppManager(){
 
 		nodemanager = NodeManager.getInstance();
 		nodemanager.init();
+		
+		repManager = new ReplicationManager(nodemanager, registry);
 	}
 	
 	public String getDirectoryListing(String path){
@@ -42,7 +46,7 @@ public class WebAppManager {
 			finfo = new HashMap<String, String>();
 			
 			finfo.put("name", file.getName());
-			finfo.put("size", "0");
+			finfo.put("size", file.getSize());
 			finfo.put("type", file.getType());
 			finfo.put("path", file.getParent() + "/" + file.getName());
 
@@ -59,6 +63,18 @@ public class WebAppManager {
 		reply.put("path", path);
 
 		return (reply.toString());
+	}
+	
+	public String getReplicationStatus(){
+		
+		List<Map<String, String>> listfiles = repManager.getReport();
+		
+		JSONObject reply = new JSONObject();
+		reply.put("filelist", listfiles);
+		reply.put("result", "OK");
+	
+		System.out.println(reply.toString());
+		return reply.toString();
 	}
 	
 	public String mkdir(String path){
@@ -101,25 +117,37 @@ public class WebAppManager {
 		
 		String dnReply = datanode.uploadFile(renamedtmpFile.toString());
 		
-		Files.delete(renamedtmpFile);
-		
-		JSONObject replyJson = null;
+		JSONObject replyPyUpload = null;
+		JSONObject reply = new JSONObject();
 		
 		try {
-			replyJson = new JSONObject(dnReply);
-			if (!replyJson.has("result")){
-				System.err.println("ERROR: JSON reply from Datanode does not have key 'result'");
+			replyPyUpload = new JSONObject(dnReply);
+			if (!replyPyUpload.has("result")){
+				String reason = "ERROR: JSON reply from Datanode does not have key 'result'";
+				System.err.println(reason);
+				reply.put("error", reason);
+				return reply.toString();
 			}
 		} catch (JSONException e) {
-			System.err.println("ERROR while parsing: " + dnReply);
-			e.printStackTrace();
+			String reason = "ERROR while parsing: " + dnReply;
+			reason += "\nDatenode: " + datanode.getName() + "\n";
+			System.err.println(reason);
+			reply.put("error", reason);
+			return reply.toString();
 		}
 
+		DFile fileEntry = new DFile();
+		fileEntry.setName(filename);
+		fileEntry.setParent(cwd);
+		fileEntry.setId(fileid);
+		fileEntry.setType("file");
+		fileEntry.setSize(String.valueOf(uploadedFileSize));
 		
-		registry.createMapping(cwd+"/"+filename, fileid, "file");
+		registry.insertFile(fileEntry);
 		registry.createMappingDN(fileid, datanode.getName());
+
+		Files.delete(renamedtmpFile);
 		
-		JSONObject reply = new JSONObject();
 		Map<String, String> result = new HashMap<String, String>(); 
 		result.put(filepath, "OK");
 		reply.put("result", result);
@@ -179,6 +207,24 @@ public class WebAppManager {
 		
 		reply.put("result", String.valueOf(executed));
 		
+		return reply.toString();
+	}
+
+	public String getDataNodeStatus() {
+		List<Node> nodes = nodemanager.getDatanodes();
+
+		JSONObject reply = new JSONObject();
+		
+		List<String> dinfos = new ArrayList<String>();
+		for(Node node: nodes){
+			String dinfo = node.getIdentifier();
+			dinfos.add(dinfo);
+		}
+		
+		reply.put("datanodes", dinfos);
+		reply.put("result", "OK");
+		
+		System.out.println(reply.toString());
 		return reply.toString();
 	}
 	

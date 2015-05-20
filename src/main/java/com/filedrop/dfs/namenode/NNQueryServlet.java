@@ -65,6 +65,23 @@ public class NNQueryServlet extends HttpServlet {
 			return;
 		}
 		
+		if (paramMap.keySet().contains("replication_status")){
+			
+			String resultStr = webManager.getReplicationStatus();
+			response.getWriter().print(resultStr);
+			return;
+			
+		}
+		if (paramMap.keySet().contains("nodemanager_status")){
+			
+			String resultStr = webManager.getDataNodeStatus();
+			response.getWriter().print(resultStr);
+			return;
+			
+		}
+		
+		
+		
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)

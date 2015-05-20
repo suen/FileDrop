@@ -21,7 +21,7 @@ public class Utils {
 		return path;
 	}
 	
-	public static DFile parseFilePath(String myFilePath, String type){
+	public static String[] parseFilePath(String myFilePath){
 		
 		myFilePath = removeSlash(myFilePath);
 		
@@ -40,9 +40,8 @@ public class Utils {
 		
 		//System.out.println("PATH : " + path);
 		//System.out.println("FILENAME : " + fileName);
-		
-		DFile myFile = new DFile(fileName,type,path);
-		return myFile;
+
+		return new String[]{fileName, path};
 	}
 	
 	public static  List<DFile> getFileList(List<Map<String, String>> result){
@@ -51,14 +50,17 @@ public class Utils {
         DFile myFile = null;
         
         for(Map<String, String> tuple: result){
-        	//System.out.println(tuple.get("name"));
-        	myFile = new DFile(tuple.get("name"),tuple.get("type"),
-        			tuple.get("parent"));
+
+        	myFile = new DFile();
+        	
+        	myFile.setName(tuple.get("name"));
+        	myFile.setType(tuple.get("type"));
+        	myFile.setParent(tuple.get("parent"));
         	myFile.setId(tuple.get("id"));
-        	//System.out.println(myFile.getName());
+        	myFile.setSize(tuple.get("size"));
         	myResults.add(myFile);
         }
-        //System.out.println("taille myResults "+myResults.size());
+
 		return myResults;
 	}
 	
