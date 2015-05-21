@@ -25,7 +25,6 @@ public class NodeManager implements Runnable {
 		nodeThread = new Thread(this);
 		nodeThread.setDaemon(true);
 		nodeThread.start();
-
 	}
 
 	private void readNodeConfigs() throws IOException{
@@ -78,34 +77,47 @@ public class NodeManager implements Runnable {
 			if (node.getName().equals(name))
 				return node;
 		}
-		System.out.println("ERROR: Datanode " + name + " not found");
+		System.out.println("[NodeManager] ERROR: Datanode " + name + " not found");
 		return null;
 	}
 
 	public void pingDataNodes(){
 
-		List<Integer> deadNodes = new ArrayList<Integer>();
+		//System.out.println("[NodeManager] pinging ");
+		
+		List<Node> newNodeList = new ArrayList<Node>();
+		//List<Integer> deadNodes = new ArrayList<Integer>();
 		for(Node node: nodes){
-			long size = 0;
+			long size = -1;
 
 			try {
 				size = node.getOccupiedSpace();
 			} catch (Exception e) {
-				
+				System.out.println("[NodeManager] size "+size);
+				e.printStackTrace();
 			}
 
-			if (size==0){
-				deadNodes.add(nodes.indexOf(node));
-				System.out.println("ERREUR: " + node.getIdentifier() + " DEAD");
+			if (size == -1){
+				//deadNodes.add(nodes.indexOf(node));
+			//	System.out.println("[NodeManager] ERREUR: " + node.getIdentifier() + " DEAD (" + nodes.indexOf(node) + ", " + node.getIdentifier() + ")");
 				continue;
+			} else {
+				//System.out.println("INFO: " + node.getIdentifier() + " alive ("+size+")");
+				newNodeList.add(node);
 			}
-
-			//System.out.println("INFO: " + node.getIdentifier() + " alive");
 		}
+		
+//		System.out.println("[NodeManager] INFO: New list ("+newNodeList.size() +")"
+//				+ "old list ("+nodes.size() +")");
 
+		/*
 		for(Integer nodeIndex: deadNodes){
+			System.out.println("[NodeManager] Removing "+nodes.get(nodeIndex).getIdentifier() + " (" + nodes.size() + ")" );
 			nodes.remove(nodeIndex);
+			System.out.println("[NodeManager] Removed "+nodes.get(nodeIndex).getIdentifier() + " (" + nodes.size() + ")" );
 		}
+		*/
+		this.nodes = newNodeList;
 	}
 
 
@@ -149,25 +161,15 @@ public class NodeManager implements Runnable {
 
 	@Override
 	public void run() {
+		System.out.println("[NodeManager] initialized");
 		try {
-			readNodeConfigs();
-			pingDataNodes();
-			Thread.sleep(10000);
-			run();
-
+			while(true) {
+				readNodeConfigs();
+				pingDataNodes();
+				Thread.sleep(2000);
+			}
 		} catch (Exception e) {
 		}
-	}
-
-
-	public static void main(String[] args) throws IOException {
-		NodeManager manager = new NodeManager();
-		manager.readNodeConfigs();
-		manager.pingDataNodes();
-		manager.printstat();
-//
-//		Node node = manager.getaDataNodeWithSpace(8331022771L);
-//		System.out.println("Node with free space " + node.getIdentifier());
 	}
 
 }

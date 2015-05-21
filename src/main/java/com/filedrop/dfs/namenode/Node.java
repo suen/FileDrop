@@ -87,7 +87,7 @@ public class Node {
 			long size = 1;
 			size = Long.parseLong(replyJson.getString("result"));
 
-			return (size==0 ? 1 : size);
+			return size;
 
 		}  catch (Exception e) {
 
@@ -98,7 +98,7 @@ public class Node {
 				e.printStackTrace();
 			}
 		}
-		return 0;
+		return -1;
 	}
 	
 	public List<String> getFileList() {
