@@ -151,25 +151,21 @@ public class ReplicationManager implements Runnable {
 					aSourceUrl = node.getURL();
 				}
 
-				for (int i = dns.length; i < factor; i++) {
-					for (Node destNode : destNodes) {
-						if (sourceNodes.containsKey(destNode.getName()))
-							continue;
+				for (Node destNode : destNodes) {
+					if (sourceNodes.containsKey(destNode.getName()))
+						continue;
 
-						System.out.println("REPLICATION: Replicating on "
-								+ destNode.getName());
+					System.out.println("REPLICATION: Replicating on "
+							+ destNode.getName());
 
-						destNode.downloadFile(aSourceUrl, file.getId());
+					destNode.downloadFile(aSourceUrl, file.getId());
 
-						sourceNodes.put(destNode.getName(), destNode);
+					sourceNodes.put(destNode.getName(), destNode);
 
-						registry.createMappingDN(file.getId(),
-								destNode.getName());
+					registry.createMappingDN(file.getId(),
+							destNode.getName());
 
-						if (sourceNodes.size() == dns.length)
-							break;
-					}
-					if (sourceNodes.size() == dns.length)
+					if (sourceNodes.size() == factor)
 						break;
 				}
 			} else if (dns.length > factor) {

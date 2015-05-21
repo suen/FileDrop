@@ -15,8 +15,10 @@ import com.filedrop.dfs.namenode.NameNodeConfig;
 
 public class PostgreSQLDataSource {
 
+	private Connection connection;
+	
 	public PostgreSQLDataSource() {
-
+		connection = connectDB();
 	}
 
 	private Connection connectDB() {
@@ -29,9 +31,10 @@ public class PostgreSQLDataSource {
 			String postgresPwd = config.getValue("postgres_password");
 			String postgresdb = config.getValue("postgres_database");
 			
+			String url = "jdbc:postgresql://"+postgresHost+":"+postgresPort+"/"+postgresdb;
+			//System.out.println(url);
 			connection = DriverManager.getConnection(
-				"jdbc:postgresql://"+postgresHost+":"+postgresPort+"/"+postgresdb, 
-				postgresUser,postgresPwd);
+							url, postgresUser,postgresPwd);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -40,13 +43,12 @@ public class PostgreSQLDataSource {
 	}
 
 	public List<Map<String, String>> query(String sqlquery) {
-		Connection c = connectDB();
 		Statement statement = null;
 
 		List<Map<String, String>> result = new ArrayList<Map<String, String>>();
 		Map<String, String> row;
 		try {
-			statement = c.createStatement();
+			statement = connection.createStatement();
 
 			ResultSet resultset = statement.executeQuery(sqlquery);
 
@@ -79,10 +81,9 @@ public class PostgreSQLDataSource {
 	}
 
 	public boolean insert(String query) {
-		Connection c = connectDB();
 		Statement statement = null;
 		try {
-			statement = c.createStatement();
+			statement = connection.createStatement();
 			statement.executeUpdate(query);
 			//System.err.println(query);
 			//c.commit();
@@ -94,5 +95,6 @@ public class PostgreSQLDataSource {
 		return false;
 
 	}
+	
 
 }

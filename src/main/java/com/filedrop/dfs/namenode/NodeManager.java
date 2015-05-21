@@ -99,10 +99,10 @@ public class NodeManager implements Runnable {
 
 			if (size == -1){
 				//deadNodes.add(nodes.indexOf(node));
-			//	System.out.println("[NodeManager] ERREUR: " + node.getIdentifier() + " DEAD (" + nodes.indexOf(node) + ", " + node.getIdentifier() + ")");
+				System.out.println("[NodeManager] ERREUR: " + node.getIdentifier() + " DEAD (" + nodes.indexOf(node) + ", " + node.getIdentifier() + ")");
 				continue;
 			} else {
-				//System.out.println("INFO: " + node.getIdentifier() + " alive ("+size+")");
+				System.out.println("INFO: " + node.getIdentifier() + " alive ("+size+")");
 				newNodeList.add(node);
 			}
 		}

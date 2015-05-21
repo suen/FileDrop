@@ -33,7 +33,7 @@ public class Node {
 	}
 
 	public String getURL(){
-		return ("http://" + ip + ":" + port).trim();
+		return ("http://" + ip + ":" + port).replace(" ", "").trim();
 	}
 
 	public Node(String ip, String name, String port, long totalspace){
