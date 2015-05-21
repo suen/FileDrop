@@ -186,8 +186,8 @@ public class Node {
 
 			try {
 				JSONObject replyJson = new JSONObject(response.getContentAsString());
-				JSONObject result = replyJson.getJSONObject("result");
-				System.out.println(result.toString());
+				String result = replyJson.getString("result");
+				System.out.println(result);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -235,10 +235,10 @@ class PyHttpClient {
       return "";
 	}
 	
-	public static void main(String[] args) {
+	public static void test() {
 		PyHttpClient py = new PyHttpClient();
-		
 		py.upload("http://localhost:8080/upload", "/d/ent/movies/A.Walk.Among.The.Tombstones.2014.FANSUB.VOSTFR.HDRiP.CROPPED.XviD.AC3-NIKOo-ZT.avi");
 	}
+	
 	
 }

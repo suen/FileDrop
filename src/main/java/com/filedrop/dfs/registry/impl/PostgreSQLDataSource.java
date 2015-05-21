@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.filedrop.dfs.namenode.NameNodeConfig;
+
 public class PostgreSQLDataSource {
 
 	public PostgreSQLDataSource() {
@@ -18,19 +20,23 @@ public class PostgreSQLDataSource {
 	}
 
 	private Connection connectDB() {
-		Connection c = null;
+		Connection connection = null;
 		try {
-			// Class.forName("org.postgresql.Driver");
-			c = DriverManager.getConnection(
-					"jdbc:postgresql://localhost:5432/filedrop_meta", "postgres",
-					"postgres");
+			NameNodeConfig config = NameNodeConfig.getInstance();
+			String postgresHost = config.getValue("postgres_host");
+			String postgresPort = config.getValue("postgres_port");
+			String postgresUser = config.getValue("postgres_user");
+			String postgresPwd = config.getValue("postgres_password");
+			String postgresdb = config.getValue("postgres_database");
+			
+			connection = DriverManager.getConnection(
+				"jdbc:postgresql://"+postgresHost+":"+postgresPort+"/"+postgresdb, 
+				postgresUser,postgresPwd);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(0);
 		}
-		//System.out.println("Opened database successfully");
-		return c;
+		return connection;
 	}
 
 	public List<Map<String, String>> query(String sqlquery) {

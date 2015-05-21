@@ -23,9 +23,17 @@ public class WebAppManager {
 	private NodeManager nodemanager;
 	private ReplicationManager repManager;
 	
-	public WebAppManager(){
+	private static WebAppManager self = null;
+	public static WebAppManager getInstance(){
+		if (self==null)
+			self = new WebAppManager();
+		return self;
+	}
 
-		nodemanager = NodeManager.getInstance();
+	
+	private WebAppManager(){
+
+		nodemanager = new NodeManager();
 		nodemanager.init();
 		
 		repManager = new ReplicationManager(nodemanager, registry);

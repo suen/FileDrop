@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.filedrop.dfs.namenode.NameNodeConfig;
 import com.filedrop.dfs.namenode.Node;
 import com.filedrop.dfs.namenode.NodeManager;
 import com.filedrop.dfs.registry.model.DFile;
@@ -12,7 +13,7 @@ import com.filedrop.dfs.registry.model.Registry;
 
 public class ReplicationManager implements Runnable {
 
-	private static final int REPLICATION_FACTOR = 2;
+	private int replication_factor;
 	
 	private NodeManager nodemanager;
 	private Registry registry;
@@ -22,6 +23,9 @@ public class ReplicationManager implements Runnable {
 		this.nodemanager = nodeManager;
 		this.registry = registry;
 		
+		String valStr = NameNodeConfig.getInstance().getValue("replication_factor");
+		replication_factor = Integer.valueOf(valStr);
+		
 		thread = new Thread(this);
 		thread.setDaemon(true);
 		thread.start();
@@ -29,7 +33,15 @@ public class ReplicationManager implements Runnable {
 	
 	@Override
 	public void run() {
-		
+		try {
+			Thread.sleep(10000);
+			
+			validateRegistryEntry();
+			replicateFile(replication_factor);
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void validateRegistryEntry(){
@@ -38,7 +50,7 @@ public class ReplicationManager implements Runnable {
 			String[] datanode = registry.getDatanodeForFileID(file.getId());
 			
 			if (datanode == null){
-				System.out.println("ZOMBIE file detected " + 
+				System.out.println("REPLICATION: ZOMBIE file detected " + 
 						file.getPath());
 				
 				registry.rmfile(file.getPath());
@@ -47,9 +59,17 @@ public class ReplicationManager implements Runnable {
 			
 			for(String dn: datanode){
 				Node node = nodemanager.getDatanodeByName(dn);
+				if (node == null){
+					System.out.println("REPLICATION: Datanode '" + dn + "' for '"
+							+ file.getParent() + "/" + file.getName() +"'"
+									+ "does not exist");
+					registry.rmmappingDN(file.getId(), dn);
+					continue;
+				}
+				
 				try {
 					if (! node.exists(file.getId())) {
-						System.out.println("False Entry detected " + 
+						System.out.println("REPLICATION: False Entry detected " + 
 								file.getParent() + "/" + file.getName());
 						registry.rmmappingDN(file.getId(), dn);
 					}
@@ -105,7 +125,7 @@ public class ReplicationManager implements Runnable {
 			String[] dns = registry.getDatanodeForFileID(file.getId());
 			
 			if (dns == null){
-				System.out.println("replicateFile(): ZOMBIE file detected " + 
+				System.out.println("REPLICATION: ZOMBIE file detected " + 
 						file.getPath());
 				continue;
 			}

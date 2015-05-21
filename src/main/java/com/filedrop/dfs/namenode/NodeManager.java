@@ -12,19 +12,12 @@ import java.util.Random;
 public class NodeManager implements Runnable {
 
 	private List<Node> nodes;	
-	private final String configDirName = "./config";
+	private final String configDirName = "./config/datanode";
 
 	private Thread nodeThread ;
 
-	private NodeManager(){
+	public NodeManager(){
 
-	}
-	
-	private static NodeManager self = null;
-	public static NodeManager getInstance(){
-		if (self==null)
-			self = new NodeManager();
-		return self;
 	}
 
 	
@@ -103,11 +96,11 @@ public class NodeManager implements Runnable {
 
 			if (size==0){
 				deadNodes.add(nodes.indexOf(node));
-				System.out.println("INFO: " + node.getIdentifier() + " DEAD");
+				System.out.println("ERREUR: " + node.getIdentifier() + " DEAD");
 				continue;
 			}
 
-			System.out.println("INFO: " + node.getIdentifier() + " alive");
+			//System.out.println("INFO: " + node.getIdentifier() + " alive");
 		}
 
 		for(Integer nodeIndex: deadNodes){
@@ -159,8 +152,8 @@ public class NodeManager implements Runnable {
 		try {
 			readNodeConfigs();
 			pingDataNodes();
-			Thread.sleep(5000);
-		//	run();
+			Thread.sleep(10000);
+			run();
 
 		} catch (Exception e) {
 		}

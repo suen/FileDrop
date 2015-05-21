@@ -55,7 +55,7 @@ public class DataNodeServer {
 		
 		
 //		final Server server = new Server(port);
-		InetSocketAddress sock = new InetSocketAddress("localhost", port);
+		InetSocketAddress sock = new InetSocketAddress(hostname, port);
 		final Server server = new Server(sock);
 		
 		server.setHandler(context);

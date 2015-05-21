@@ -14,7 +14,7 @@ public class NNQueryServlet extends HttpServlet {
 	
 	private WebAppManager webManager;
 	public NNQueryServlet() {
-		webManager = new WebAppManager();
+		webManager = WebAppManager.getInstance();
 	}
 	
 	@Override

@@ -32,7 +32,7 @@ public class NNUploadServlet extends HttpServlet
 
 	private WebAppManager webManager;
 	public NNUploadServlet() {
-		webManager = new WebAppManager();
+		webManager = WebAppManager.getInstance();
 	}
 	
 	@Override
