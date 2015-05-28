@@ -12,8 +12,20 @@ to avoid overwritting of data directory. You can run any number of datanodes.
 Quick Start
 -----------
 
-Make sure you have python installed in your system, as there is a small python
-script used to transfer files between nodes. More specifically, 
+Install python and "requests" library
+
+	# For debian-based distro only
+	# please adapt the following commands if you are using a different OS
+
+	$ sudo apt-get install python python-pip
+
+	$ sudo pip install requests 
+
+	# You can always modify the script "clientpy.py" to your liking or replace it
+	# with something equivalent. Just make sure the script takes URL and filepath as 
+	# runtime parameters and uploads the given file to the specified URL. (This script
+	# will be replaced by a Java class in future, it's just a quick solution to
+	# do multi-part file upload.)
 
 Intall maven, if you do not have it in your system
 
@@ -24,7 +36,7 @@ Intall maven, if you do not have it in your system
 Install postgresql for your OS and make a note of your login. If you already 
 have it installed, skip this step.
 
-	# For debian-based distro, it would be
+	# For debian-based distro
 
 	$ sudo apt-get install postgresql
 
@@ -40,20 +52,6 @@ have it installed, skip this step.
 	#note that postgresql has a default database named 'postgres', we will use this
 	#for our application, if you want to use something else, make changes accordingly
 
-Install python and "requests" library
-
-	# For debian-based distro only
-	# please adapt the following commands if you are using a different OS
-
-	$ sudo apt-get install python python-pip
-
-	$ sudo pip install requests 
-
-	# You can always modify the script "clientpy.py" to your liking or replace it
-	# with something equivalent. Just make sure the script takes URL and filepath as 
-	# runtime parameters and uploads the given file to the specified URL. (This script
-	# will be replaced by a Java class in future, it's just a quick solution to
-	# do multi-part file upload.)
 
 select a directory where you would like to clone the repo
 
