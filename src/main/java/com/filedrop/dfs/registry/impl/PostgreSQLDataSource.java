@@ -95,6 +95,23 @@ public class PostgreSQLDataSource {
 		return false;
 
 	}
+
+	public void initialisedb(){
+		
+		String createregistry = "create table IF NOT EXISTS registry"
+				+ "(name text, type text, parent text, id text, size text);";
+		String createlocation = "create table IF NOT EXISTS location"
+				+ "(id text, datanode text);";
+
+		Statement statement = null;
+		try {
+			statement = connection.createStatement();
+			statement.execute(createregistry);
+			statement.execute(createlocation);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 
 }
