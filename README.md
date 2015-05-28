@@ -126,7 +126,7 @@ And the admin interface should be available at http://localhost:8080/admin.html
 Configuration
 -------------
 
-##Datanode:
+###Datanode:
 For the sake of simplicity, no configuration file has been used for Datanode. The
 hostname and port are passed as runtime parameters as follows:
 
@@ -135,7 +135,7 @@ hostname and port are passed as runtime parameters as follows:
 	replace "IP" and "PORT" with IP of your network interface and an available port. eg. "127.0.0.1 8000"
 
 
-##Namenode:
+###Namenode:
 
 The config/namenode.conf is the configuration file used by namenode. The namenode
 uses postgresql to store metadata. Modify the configuration file with your postgresql
