@@ -21,6 +21,8 @@ public class NameNodeHTTPServer {
 	public void configInit(){
 		config = NameNodeConfig.getInstance();
 		config.init("./config/namenode.conf");
+
+		//first initialization of the WebAppManager singleton
 		WebAppManager.getInstance();
 		
 	}
@@ -50,8 +52,8 @@ public class NameNodeHTTPServer {
 		
 		String hostname = (config.getValue("namenode_host") == null ? 
 					"localhost" : config.getValue("namenode_host"));
-		String port = (config.getValue("namenode_host") == null ? 
-				"8080" : config.getValue("namenode_host"));
+		String port = (config.getValue("namenode_port") == null ? 
+				"8080" : config.getValue("namenode_port"));
 
 		InetSocketAddress sock = new InetSocketAddress(hostname, Integer.valueOf(port));
 		final Server server = new Server(sock);
