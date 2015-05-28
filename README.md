@@ -21,6 +21,25 @@ Intall maven, if you do not have it in your system
 
 	$ sudo apt-get install maven
 
+Install postgresql for your OS and make a note of your login. If you already 
+have it installed, skip this step.
+
+	# For debian-based distro, it would be
+
+	$ sudo apt-get install postgresql
+
+	$ export LC_ALL=C
+
+	$ sudo pg_createcluster 9.3 main
+
+	$ sudo service postgresql start
+
+	#change password for default db user 'postgres'
+	$ sudo passwd postgres
+
+	#note that postgresql has a default database named 'postgres', we will use this
+	#for our application, if you want to use something else, make changes accordingly
+
 Install python and "requests" library
 
 	# For debian-based distro only
@@ -31,7 +50,7 @@ Install python and "requests" library
 	$ sudo pip install requests 
 
 	# You can always modify the script "clientpy.py" to your liking or replace it
-	# with something equivalent. Just make sure they take a URL and filepath as 
+	# with something equivalent. Just make sure the script takes URL and filepath as 
 	# runtime parameters and uploads the given file to the specified URL. (This script
 	# will be replaced by a Java class in future, it's just a quick solution to
 	# do multi-part file upload.)
@@ -118,9 +137,15 @@ and similarly for the third :
 (You can also copy paste first datanode config file and simply change the value of the parameters)
 
 
-Edit config/namenode.conf with the login credential for postgresql
+Edit config/namenode.conf with the appropriate value for postgresql. If your password
+for postgres is 'postgres', you have nothing to change in this file. If else, change
+the value of parameters accordingly
 
-Run the name node as:
+Run following to create database tables
+
+	$ mvn exec:java -Dexec.mainClass="com.filedrop.dfs.registry.impl.InitPostgres" 
+
+Run the namenode as:
 
 	$ mvn exec:java -Dexec.mainClass="com.filedrop.dfs.namenode.NameNodeHTTPServer" 
 
@@ -170,16 +195,4 @@ in config/datanode/ directory for it be recognized by namenode. Datanodes can be
 added/removed dynamically. The namenode is constantly scanning config/datanode/
 directory for any new configs and at same time pinging the nodes as per specified
 in the configs.
-
-
-
-
-To run namenode, simply run
-	
-	$ mvn exec:java -Dexec.mainClass="com.filedrop.dfs.namenode.NameNodeHTTPServer" 
-
-The namenode is running and the web interface is accessible at http://IP:PORT, where
-IP, PORT are the values defined in config/namenode.conf for namenode. It is "localhost:8080"
-by default
-
 
