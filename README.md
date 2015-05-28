@@ -15,9 +15,15 @@ Quick Start
 Make sure you have python installed in your system, as there is a small python
 script used to transfer files between nodes. More specifically, 
 
+Intall maven, if you do not have it in your system
+
+	# For debian-based distro
+
+	$ sudo apt-get install maven
+
 Install python and "requests" library
 
-	# For debian-based Linux distro only
+	# For debian-based distro only
 	# please adapt the following commands if you are using a different OS
 
 	$ sudo apt-get install python python-pip
