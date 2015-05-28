@@ -96,37 +96,19 @@ public class NodeManager implements Runnable {
 		//System.out.println("[NodeManager] pinging ");
 		
 		List<Node> newNodeList = new ArrayList<Node>();
-		//List<Integer> deadNodes = new ArrayList<Integer>();
 		for(Node node: nodes){
-			long size = -1;
+			boolean alive = false;
 
 			try {
-				size = node.getOccupiedSpace();
+				alive  = node.isAlive();
 			} catch (Exception e) {
 				//System.out.println("[NodeManager] size "+size);
 				e.printStackTrace();
 			}
 
-			if (size == -1){
-				//deadNodes.add(nodes.indexOf(node));
-				//System.out.println("[NodeManager] ERREUR: " + node.getIdentifier() + " DEAD (" + nodes.indexOf(node) + ", " + node.getIdentifier() + ")");
-				continue;
-			} else {
-				//System.out.println("INFO: " + node.getIdentifier() + " alive ("+size+")");
+			if (alive)
 				newNodeList.add(node);
-			}
 		}
-		
-//		System.out.println("[NodeManager] INFO: New list ("+newNodeList.size() +")"
-//				+ "old list ("+nodes.size() +")");
-
-		/*
-		for(Integer nodeIndex: deadNodes){
-			System.out.println("[NodeManager] Removing "+nodes.get(nodeIndex).getIdentifier() + " (" + nodes.size() + ")" );
-			nodes.remove(nodeIndex);
-			System.out.println("[NodeManager] Removed "+nodes.get(nodeIndex).getIdentifier() + " (" + nodes.size() + ")" );
-		}
-		*/
 		this.nodes = newNodeList;
 	}
 

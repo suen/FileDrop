@@ -26,6 +26,7 @@ public class Node {
 	public final String delete = "/query?delete";
 	public final String upload = "/upload";
 	public final String download = "/query?download";
+	public final String heartbeat = "/query?heartbeat";
 
 
 	public String getIdentifier(){
@@ -74,6 +75,28 @@ public class Node {
 	
 	public void setTotalSpace(long totalspace){
 		this.totalspace = totalspace;
+	}
+	
+	public boolean isAlive(){
+		try {
+
+			client.start();
+			ContentResponse response = client.GET(getURL()+heartbeat);
+
+			JSONObject replyJson = new JSONObject(response.getContentAsString());
+			String result = replyJson.getString("result");
+			return true;
+
+		}  catch (Exception e) {
+
+		} finally {
+			try {
+				client.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
 	}
 	
 	public long getOccupiedSpace(){
