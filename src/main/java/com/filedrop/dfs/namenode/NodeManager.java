@@ -11,7 +11,8 @@ import java.util.Random;
 
 public class NodeManager implements Runnable {
 
-	private List<Node> nodes;	
+	private List<Node> nodes;
+	private int dnCount = 0;
 	private final String configDirName = "./config/datanode";
 
 	private Thread nodeThread ;
@@ -32,7 +33,7 @@ public class NodeManager implements Runnable {
 		File configDir = new File(configDirName);
 
 		if (!configDir.exists()){
-			System.err.println("FATAL: Config directory does not exists");
+			System.err.println("[NodeManager] FATAL: Config directory does not exists");
 			return;
 		}
 
@@ -41,12 +42,22 @@ public class NodeManager implements Runnable {
 		for(String configfn: configFileList){
 			readConfig(configfn);
 		}
+
+		if (dnCount == 0 || dnCount != nodes.size()) {
+			dnCount = nodes.size();
+			System.out.println("[NodeManager] INFO: New DataNode List");
+			printstat();
+		}
 	}
 
 	private void readConfig(String configfn) throws IOException{
+		
+		if (!configfn.endsWith(".conf"))
+			return;
+		
 		File configfile = new File(configDirName + "/" + configfn);
 		if (!configfile.exists()){
-			System.err.println("FATAL: Config file  '" + configfn + "' does not exists");
+			System.err.println("[NodeManager] FATAL: Config file  '" + configfn + "' does not exists");
 			return;
 		}
 
@@ -58,7 +69,7 @@ public class NodeManager implements Runnable {
 		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(configfile.getAbsolutePath());
 
 		if(iStream==null){
-			System.err.println("FATAL: Config file stream failed");
+			System.err.println("[NodeManager] FATAL: Config file stream failed");
 			return;
 		}
 		prop.load(iStream);
@@ -66,10 +77,9 @@ public class NodeManager implements Runnable {
 		String name = prop.get("name").toString();
 		String ip = prop.get("ip").toString();
 		String port = prop.get("port").toString();
-		String totalspace = prop.get("space").toString();
+		String totalspace = prop.get("space").toString().trim();
 		Node node = new Node(ip, name, port, Long.valueOf(totalspace));
 		nodes.add(node);
-		//System.out.println("INFO: New DataNode '" +node.getIdentifier() + "'" );
 	}
 
 	public Node getDatanodeByName(String name){
@@ -121,9 +131,9 @@ public class NodeManager implements Runnable {
 	}
 
 
-	public void printstat(){
+	private void printstat(){
 		for(Node node: nodes){
-			System.out.println("Node: " + node.getIdentifier() + " size: " + node.getOccupiedSpace());
+			System.out.println("\tNode: " + node.getIdentifier() + " size: " + node.getOccupiedSpace());
 		}
 	}
 
@@ -169,6 +179,7 @@ public class NodeManager implements Runnable {
 				Thread.sleep(2000);
 			}
 		} catch (Exception e) {
+			System.out.println("[NodeManager] FATAL: NodeManager Thread dead");
 		}
 	}
 
