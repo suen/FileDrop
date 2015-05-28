@@ -29,6 +29,16 @@ public class DNQueryServlet extends HttpServlet {
 
 		Map<String, String[]> paramMap = request.getParameterMap();
 		
+		if (paramMap.keySet().contains("heartbeat")){
+			JSONObject reply = new JSONObject();
+			reply.put("result", "alive");
+			reply.put("query", "heartbeat");
+		
+			System.out.println(reply.toString());
+			response.getWriter().print(reply.toString());
+			return;
+		}
+		
 		if (paramMap.keySet().contains("list")){
 			
 			JSONObject reply = new JSONObject();
