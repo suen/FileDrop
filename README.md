@@ -147,9 +147,10 @@ Start a new terminal for namenode
 
 	$ rm config/datanodes/*.conf # optional step
 
-Create first datanode config file as:
+Create first datanode config file as : (copy paste)
 
-	$ echo "\
+	$ \
+	echo "\
 	# datanode1 config
 	name = datanode1
 	ip = 127.0.0.1
@@ -159,7 +160,8 @@ Create first datanode config file as:
 	
 Do same for second datanode as :
 
-	$ echo "\
+	$ \
+	echo "\
 	# datanode2 config
 	name = datanode2
 	ip = 127.0.0.1
@@ -167,7 +169,17 @@ Do same for second datanode as :
 	space = 10000000000 
 	" > config/datanode/datanode2.conf
 	
-and similarly for the third. 
+and similarly for the third :
+
+	$ \
+	echo "\
+	# datanode3 config
+	name = datanode3
+	ip = 127.0.0.1
+	port = 8002
+	space = 10000000000 
+	" > config/datanode/datanode3.conf
+	
 (You can also copy paste first datanode config file and simply change the value of the parameters)
 
 
